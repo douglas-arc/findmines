@@ -138,7 +138,8 @@ def main():
     print(minefield.width, "x", minefield.height)
     
     # First click is chosen at random
-    firstClick = random.randrange(len(minefield.tiles))  
+    # Starts w/ one of the four corners
+    firstClick = random.choice([0, minefield.width - 1, len(minefield.tiles) - minefield.width, len(minefield.tiles) - 1])  
     firstClick_x, firstClick_y = minefield.tiles[firstClick].position[0]/2, minefield.tiles[firstClick].position[1]/2
     gui.doubleClick(firstClick_x+5, firstClick_y+5)
     end = False
