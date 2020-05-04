@@ -2,6 +2,7 @@ import pyautogui as gui
 from PIL import Image
 import random
 import time
+import pdb
 
 class Minefield:
     def __init__(self, width, height, tiles):
@@ -71,7 +72,17 @@ def find_neighbors(tile, minefield):
     elif i % w == w - 1:                        return (i - w - 1, i - w, i - 1, i + w - 1, i + w)      # 6
     elif i // w == h - 1:                       return (i - w - 1, i - w, i - w + 1, i - 1, i + 1)      # 7
     else:                                       return (i - w - 1, i - w, i - w + 1, i - 1, i + 1, i + w - 1, i + w, i + w + 1) # 9       
-    
+
+
+def find_patterns(m, t, h):           
+    if t.index % m.width != 0 and t.index % m.width != m.width - 1:                                                                     # If tile is not on the left or right-most columns
+        if m.tiles[t.index - 1].value == (int(t.value) - 1) and m.tiles[t.index + 1].value == (int(t.value) - 1) and len(h) == 3:       # If tile's value is one unit more than the value of its left and right neighbors AND has exactly 3 hidden neighbors
+            if h[2] - h[0] == 2:                                                                                                        # If the 3 hidden neighbors are in the SAME ROW:
+                return True
+            else: return False
+        else: return False
+    else: return False
+     
            
 def play(minefield, size):
     field, hidden_index = [], []
@@ -112,13 +123,35 @@ def play(minefield, size):
                     rClick_x, rClick_y = minefield.tiles[h].position[0]/2, minefield.tiles[h].position[1]/2
                     gui.rightClick(rClick_x + 5, rClick_y + 5)
                     minefield.tiles[h].value = 'f'
+                    # hidden_around.remove(h)
                     click_random = False
                     
             elif tile.value == n_flag:                                      # Click on safe squares
                 for h in hidden_around:                    
                     click_x, click_y = minefield.tiles[h].position[0]/2, minefield.tiles[h].position[1]/2
                     gui.click(click_x + 5, click_y + 5)
+                    minefield.tiles[h].value = '0'
+                    # hidden_around.remove(h)
                     click_random = False
+                                
+                            
+            elif find_patterns(minefield, tile, hidden_around):
+                pdb.set_trace()
+            #if tile.index % minefield.width != 0 and tile.index % minefield.width != minefield.width - 1:       # If tile is not on the left or right-most columns
+            #    if minefield.tiles[tile.index - 1].value == (int(tile.value) - 1) and minefield.tiles[tile.index + 1].value == (int(tile.value) - 1) and len(hidden_around) == 3:
+            #        if hidden_around[2] - hidden_around[0] == 2:
+                for h in range(0, 3, 2):         # Executes for 0 and 2
+                    rClick_x, rClick_y = minefield.tiles[hidden_around[h]].position[0]/2, minefield.tiles[hidden_around[h]].position[1]/2
+                    gui.rightClick(rClick_x + 5, rClick_y + 5)
+                    minefield.tiles[hidden_around[h]].value = 'f'
+                    #rClick_x, rClick_y = minefield.tiles[hidden_around[0]].position[0]/2, minefield.tiles[hidden_around[0]].position[1]/2
+                    #gui.rightClick(rClick_x + 5, rClick_y + 5) 
+                    #minefield.tiles[hidden_around[0]].value = 'f'
+                        
+                click_x, click_y = minefield.tiles[hidden_around[1]].position[0]/2, minefield.tiles[hidden_around[1]].position[1]/2
+                gui.click(click_x + 5, click_y + 5)
+                click_random = False      
+                
     
     # TERMINATION CONDITION: If no hidden tiles are left, bot WINS!
     if total_hidden == 0: return True
